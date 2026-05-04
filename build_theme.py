@@ -1,195 +1,241 @@
+#!/usr/bin/env python3
 """
-build_theme.py — Correctly combines light.css + dark.css into theme.css
+build_theme.py — validate and package the Surprising Watermelon RemNote theme.
 
-For dark mode:
-  1. Variable blocks (:root, .dark { }) → .dark { }  (no :root bleed)
-  2. The html/body/#root global selector → .dark, .dark .rn-app, ... 
-     (since .dark is ON body in RemNote, not a parent of it)
-  3. All other component selectors → prefixed with ".dark "
+This repo uses a single variable-driven `theme.css` for both light and dark mode.
+The old concatenate-light-and-dark workflow was intentionally retired because it
+can create selector leakage between modes.
+
+Usage:
+  python build_theme.py             # validate only
+  python build_theme.py --package   # validate, then create remnote-watermelon-theme.zip
 """
+from __future__ import annotations
+
+import argparse
+import json
 import re
+import sys
+import zipfile
+from pathlib import Path
+from typing import Iterable
 
-with open("light.css") as f:
-    light = f.read().rstrip()
+ROOT = Path(__file__).resolve().parent
+THEME = ROOT / "theme.css"
+MANIFEST = ROOT / "manifest.json"
+PACKAGE_NAME = "remnote-watermelon-theme.zip"
+TOP_LEVEL_FOLDER = "remnote-watermelon-theme"
 
-with open("dark.css") as f:
-    dark = f.read()
+REQUIRED_FILES = [
+    "manifest.json",
+    "theme.css",
+    "README.md",
+    "LICENSE",
+    "PACKAGING.md",
+    "AGENTS.md",
+]
 
-# ── 1. Fix variable blocks ────────────────────────────────────────────────────
-# :root, .dark { ... }  →  .dark { ... }
-dark = re.sub(r':root\s*,\s*\n\s*\.dark\s*\{', '.dark {', dark)
-# bare :root { (shouldn't be any after the above, but safe)
-dark = re.sub(r'(?<![.\w]):root\s*\{', '.dark {', dark)
+FORBIDDEN_PATTERNS = {
+    r"--swl": "Old light-only --swl variables should not appear in combined theme.css.",
+    r"body\s+\.dark\s+div#hierarchy-editor": "Use .dark div#hierarchy-editor, not body .dark div#hierarchy-editor.",
+    r":is\([^)]*\.dark\s+(?:b|i|strong|em|\.bold|\.italic|\.underline|\.code|\.inline-code|\.rn-code|\.rn-highlight-reference)": "Do not put .dark-prefixed selectors inside :is(...). Scope the outer selector instead.",
+    r"\.light\s+\.dark\\:bg-black\s*,\s*\.dark\\:bg-black": "Do not include a global .dark\\:bg-black light-mode selector.",
+}
 
-# ── 2. Fix the global html/body/#root background selector ─────────────────────
-dark = dark.replace(
-    "html,\nbody,\n#root,\n.dark,\n.rn-app,\n.rn-pane,\n.rn-pane__body,\n"
-    ".rn-clr-background,\n.rn-clr-background-primary {",
-    ".dark,\n.dark .rn-app,\n.dark .rn-pane,\n.dark .rn-pane__body,\n"
-    ".dark .rn-clr-background,\n.dark .rn-clr-background-primary {"
-)
+EXCLUDE_DIRS = {
+    ".git",
+    "__pycache__",
+    ".pytest_cache",
+    ".mypy_cache",
+    ".vscode",
+    ".idea",
+    "dist",
+    "build",
+    ".tmp",
+}
 
-# ── 3. Prefix all remaining component selector blocks with .dark ───────────────
-def prefix_component_selectors(css):
-    """
-    Walk the CSS token by token. For every rule block that is NOT a
-    CSS custom-property (variable) block, prefix each selector with .dark.
-    Variable blocks are identified by their first declaration starting with --.
-    """
-    # We'll use a simple state machine on the text
-    out = []
-    pos = 0
-    n = len(css)
+EXCLUDE_SUFFIXES = {
+    ".pyc",
+    ".pyo",
+    ".log",
+    ".swp",
+    ".swo",
+}
 
-    while pos < n:
-        # Skip whitespace / newlines
-        ws_match = re.match(r'\s+', css[pos:])
-        if ws_match:
-            out.append(ws_match.group())
-            pos += ws_match.end()
-            continue
-
-        # Comments
-        if css[pos:pos+2] == '/*':
-            end = css.find('*/', pos+2)
-            if end == -1:
-                out.append(css[pos:])
-                break
-            end += 2
-            out.append(css[pos:end])
-            pos = end
-            continue
-
-        # At-rules (pass through)
-        if css[pos] == '@':
-            end = css.find('{', pos)
-            if end == -1:
-                out.append(css[pos:])
-                break
-            # collect block
-            depth = 1
-            i = end + 1
-            while i < n and depth:
-                if css[i] == '{': depth += 1
-                elif css[i] == '}': depth -= 1
-                i += 1
-            out.append(css[pos:i])
-            pos = i
-            continue
-
-        # Try to match a selector block: selector(s) { ... }
-        # Selector ends at the first { not inside () or []
-        brace = -1
-        depth_p = depth_b = 0
-        i = pos
-        while i < n:
-            c = css[i]
-            if c == '(' : depth_p += 1
-            elif c == ')': depth_p -= 1
-            elif c == '[': depth_b += 1
-            elif c == ']': depth_b -= 1
-            elif c == '{' and depth_p == 0 and depth_b == 0:
-                brace = i
-                break
-            i += 1
-
-        if brace == -1:
-            # No more blocks
-            out.append(css[pos:])
-            break
-
-        selector_text = css[pos:brace].strip()
-        # Find matching closing brace
-        depth = 1
-        j = brace + 1
-        while j < n and depth:
-            if css[j] == '{': depth += 1
-            elif css[j] == '}': depth -= 1
-            j += 1
-        block_body = css[brace:j]  # includes { ... }
-
-        # Is this a variable block? Check if first real declaration starts with --
-        inner = block_body[1:-1].strip()
-        first_decl_match = re.search(r'[^\s*/]', inner)
-        is_var_block = first_decl_match and inner[first_decl_match.start():].startswith('--')
-
-        if is_var_block or not selector_text:
-            # Variable block or empty — pass through as-is
-            out.append(css[pos:j])
-        else:
-            # Prefix each selector with .dark
-            # Split on comma + optional whitespace (but respect :is(), :not() etc.)
-            raw_selectors = re.split(r',\s*(?=\n|[^\s])', selector_text)
-            prefixed_parts = []
-            for p in raw_selectors:
-                p = p.strip()
-                if not p:
-                    continue
-                if (p.startswith('.dark') or p.startswith('::') or
-                        p.startswith(':root') or p == '*' or
-                        p.startswith('*::')):
-                    prefixed_parts.append(p)
-                elif p.startswith('body div#hierarchy-editor') or p.startswith('body div#hierarchy-editor'.rstrip()):
-                    # body is an ancestor qualifier; .dark is on #root (inside body).
-                    # Rewrite: body div#hierarchy-editor ... → body .dark div#hierarchy-editor ...
-                    prefixed_parts.append(p.replace('body div#hierarchy-editor', 'body .dark div#hierarchy-editor', 1))
-                else:
-                    prefixed_parts.append('.dark ' + p)
-            new_sel = ',\n'.join(prefixed_parts)
-            out.append(new_sel + ' ' + block_body)
-
-        pos = j
-
-    return ''.join(out)
+EXCLUDE_NAMES = {
+    ".DS_Store",
+    "Thumbs.db",
+    PACKAGE_NAME,
+    "PluginZip.zip",
+}
 
 
-dark_transformed = prefix_component_selectors(dark)
+def strip_comments(css: str) -> str:
+    return re.sub(r"/\*.*?\*/", "", css, flags=re.S)
 
-# ── Assemble ──────────────────────────────────────────────────────────────────
-header = """\
-/* =========================================
-   Surprising Watermelon — RemNote Theme
-   Light & Dark Mode
 
-   Author: Jeremy Dawson <jeremyjdawson@gmail.com>
-   Repo:   https://github.com/jerdaw/remnote-watermelon-theme
+def brace_balance_ok(css: str) -> bool:
+    stripped = strip_comments(css)
+    balance = 0
+    for char in stripped:
+        if char == "{":
+            balance += 1
+        elif char == "}":
+            balance -= 1
+            if balance < 0:
+                return False
+    return balance == 0
 
-   Color palette adapted from:
-   "Bearded Theme Surprising Watermelon" by BeardedBear
-   https://github.com/BeardedBear/bearded-theme
 
-   Light: v0.2.0  |  Dark: v0.4.0
-   ========================================= */
-"""
+def css_variables_defined(css: str) -> set[str]:
+    return set(re.findall(r"--[A-Za-z0-9_-]+\s*:", css))
 
-combined = (
-    header
-    + "\n\n/* ─────────────────────────────────────────\n"
-    + "   LIGHT MODE (default — no class needed)\n"
-    + "   ───────────────────────────────────────── */\n"
-    + light
-    + "\n\n\n/* ─────────────────────────────────────────\n"
-    + "   DARK MODE (active when RemNote adds .dark to body/html)\n"
-    + "   ───────────────────────────────────────── */\n"
-    + dark_transformed
-    + "\n"
-)
 
-with open("theme.css", "w") as f:
-    f.write(combined)
+def css_variables_used(css: str) -> set[str]:
+    return set(re.findall(r"var\(\s*(--[A-Za-z0-9_-]+)", css))
 
-# ── Sanity checks ─────────────────────────────────────────────────────────────
-c = open("theme.css").read()
-lines = c.count('\n')
-dark_start = c.find("DARK MODE")
-dark_section = c[dark_start:] if dark_start != -1 else ""
 
-root_leaks = len(re.findall(r':root\s*\{', dark_section))
-bad_sel = re.findall(r'\.dark\s+(html|body|#root)\b', dark_section)
-dark_vars = len(re.findall(r'\.dark\s*\{', dark_section))
+def normalize_defined(definitions: set[str]) -> set[str]:
+    return {item[:-1].strip() for item in definitions}
 
-print(f"theme.css: {lines} lines, {len(c)} bytes")
-print(f"':root {{' leaks in dark section: {root_leaks}")
-print(f"Bad .dark html/body/#root selectors: {set(bad_sel) or 'none'}")
-print(f"'.dark {{' variable blocks in dark section: {dark_vars}")
-print("Done." if not root_leaks and not bad_sel else "ISSUES FOUND — review output.")
+
+def validate_manifest() -> list[str]:
+    errors: list[str] = []
+    if not MANIFEST.exists():
+        return ["Missing manifest.json"]
+
+    try:
+        manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        return [f"manifest.json is invalid JSON: {exc}"]
+
+    required_keys = [
+        "manifestVersion",
+        "id",
+        "name",
+        "author",
+        "version",
+        "theme",
+        "description",
+        "requestNative",
+        "requiredScopes",
+        "enableOnMobile",
+    ]
+    for key in required_keys:
+        if key not in manifest:
+            errors.append(f"manifest.json missing required key: {key}")
+
+    if manifest.get("theme") != ["light", "dark"]:
+        errors.append('manifest.json should contain "theme": ["light", "dark"]')
+
+    if manifest.get("requestNative") is not False:
+        errors.append("manifest.json should keep requestNative=false for this CSS-only theme")
+
+    if manifest.get("requiredScopes") != []:
+        errors.append("manifest.json should keep requiredScopes=[] for this CSS-only theme")
+
+    version = manifest.get("version")
+    if not isinstance(version, dict) or not all(k in version for k in ("major", "minor", "patch")):
+        errors.append("manifest.json version should contain major, minor, and patch")
+
+    return errors
+
+
+def validate_theme_css() -> list[str]:
+    errors: list[str] = []
+
+    for rel in REQUIRED_FILES:
+        if not (ROOT / rel).exists():
+            errors.append(f"Missing required file: {rel}")
+
+    if not THEME.exists():
+        return errors
+
+    css = THEME.read_text(encoding="utf-8")
+
+    if not brace_balance_ok(css):
+        errors.append("theme.css braces are unbalanced")
+
+    defined = normalize_defined(css_variables_defined(css))
+    used = css_variables_used(css)
+    undefined = sorted(used - defined)
+    if undefined:
+        errors.append("Undefined CSS variables: " + ", ".join(undefined))
+
+    for pattern, message in FORBIDDEN_PATTERNS.items():
+        if re.search(pattern, css, flags=re.S):
+            errors.append(message)
+
+    if ":root" not in css or ".dark" not in css:
+        errors.append("theme.css should contain both default/light tokens and .dark token overrides")
+
+    return errors
+
+
+def should_include(path: Path) -> bool:
+    rel = path.relative_to(ROOT)
+    parts = set(rel.parts)
+
+    if parts & EXCLUDE_DIRS:
+        return False
+    if path.name in EXCLUDE_NAMES:
+        return False
+    if path.suffix in EXCLUDE_SUFFIXES:
+        return False
+    if path.suffix == ".zip":
+        return False
+    return path.is_file()
+
+
+def iter_package_files() -> Iterable[Path]:
+    for path in sorted(ROOT.rglob("*")):
+        if should_include(path):
+            yield path
+
+
+def create_package() -> Path:
+    out = ROOT / PACKAGE_NAME
+    if out.exists():
+        out.unlink()
+
+    with zipfile.ZipFile(out, "w", compression=zipfile.ZIP_DEFLATED) as zf:
+        for path in iter_package_files():
+            rel = path.relative_to(ROOT)
+            arcname = Path(TOP_LEVEL_FOLDER) / rel
+            zf.write(path, arcname.as_posix())
+
+    return out
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Validate and package the RemNote theme.")
+    parser.add_argument("--package", action="store_true", help="Create remnote-watermelon-theme.zip after validation.")
+    args = parser.parse_args()
+
+    errors = []
+    errors.extend(validate_manifest())
+    errors.extend(validate_theme_css())
+
+    if errors:
+        print("Theme validation failed:", file=sys.stderr)
+        for error in errors:
+            print(f"- {error}", file=sys.stderr)
+        return 1
+
+    css = THEME.read_text(encoding="utf-8")
+    defined = normalize_defined(css_variables_defined(css))
+    used = css_variables_used(css)
+
+    print(f"theme.css OK — {len(css.splitlines())} lines, {len(css.encode('utf-8'))} bytes")
+    print(f"CSS variables: {len(defined)} defined, {len(used)} used, 0 undefined")
+    print("manifest.json OK")
+
+    if args.package:
+        out = create_package()
+        print(f"Package created: {out.name} ({out.stat().st_size} bytes)")
+
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

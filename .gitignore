@@ -1,0 +1,23 @@
+# OS/editor junk
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# Python/cache artifacts
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+
+# Logs and generated packages
+*.log
+*.zip
+PluginZip.zip
+
+# Local scratch/output folders
+dist/
+build/
+.tmp/

@@ -1,17 +1,20 @@
 {
   "manifestVersion": 1,
   "id": "watermelon_theme",
-  "name": "Watermelon Theme",
+  "name": "Surprising Watermelon",
   "author": "Jeremy Dawson",
   "repoUrl": "https://github.com/jerdaw/remnote-watermelon-theme",
+  "projectUrl": "https://github.com/jerdaw/remnote-watermelon-theme",
+  "supportUrl": "https://github.com/jerdaw/remnote-watermelon-theme/issues",
+  "changelogUrl": "https://github.com/jerdaw/remnote-watermelon-theme/releases",
   "enableOnMobile": false,
   "version": {
-    "major": 0,
+    "major": 1,
     "minor": 0,
-    "patch": 1
+    "patch": 0
   },
   "theme": ["light", "dark"],
-  "description": "A customized Light and Dark Mode theme for RemNote.",
+  "description": "A coordinated light and dark RemNote theme adapted from Bearded Theme Surprising Watermelon.",
   "requestNative": false,
   "requiredScopes": []
 }
