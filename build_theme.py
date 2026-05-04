@@ -120,18 +120,22 @@ def prefix_component_selectors(css):
             # Prefix each selector with .dark
             # Split on comma + optional whitespace (but respect :is(), :not() etc.)
             raw_selectors = re.split(r',\s*(?=\n|[^\s])', selector_text)
-            prefixed = []
-            for sel in raw_selectors:
-                sel = sel.strip()
-                if not sel:
+            prefixed_parts = []
+            for p in raw_selectors:
+                p = p.strip()
+                if not p:
                     continue
-                if (sel.startswith('.dark') or sel.startswith('::') or
-                        sel.startswith(':root') or sel == '*' or
-                        sel.startswith('*::')):
-                    prefixed.append(sel)
+                if (p.startswith('.dark') or p.startswith('::') or
+                        p.startswith(':root') or p == '*' or
+                        p.startswith('*::')):
+                    prefixed_parts.append(p)
+                elif p.startswith('body div#hierarchy-editor') or p.startswith('body div#hierarchy-editor'.rstrip()):
+                    # body is an ancestor qualifier; .dark is on #root (inside body).
+                    # Rewrite: body div#hierarchy-editor ... → body .dark div#hierarchy-editor ...
+                    prefixed_parts.append(p.replace('body div#hierarchy-editor', 'body .dark div#hierarchy-editor', 1))
                 else:
-                    prefixed.append('.dark ' + sel)
-            new_sel = ',\n'.join(prefixed)
+                    prefixed_parts.append('.dark ' + p)
+            new_sel = ',\n'.join(prefixed_parts)
             out.append(new_sel + ' ' + block_body)
 
         pos = j
