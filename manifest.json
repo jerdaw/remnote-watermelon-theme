@@ -1,0 +1,17 @@
+{
+  "manifestVersion": 1,
+  "id": "watermelon_theme",
+  "name": "Watermelon Theme",
+  "author": "Jeremy Dawson",
+  "repoUrl": "https://github.com/jerdaw/remnote-watermelon-theme",
+  "enableOnMobile": false,
+  "version": {
+    "major": 0,
+    "minor": 0,
+    "patch": 1
+  },
+  "theme": ["light", "dark"],
+  "description": "A customized Light and Dark Mode theme for RemNote.",
+  "requestNative": false,
+  "requiredScopes": []
+}

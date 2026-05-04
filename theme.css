@@ -1,0 +1,2190 @@
+/* =========================================
+   Surprising Watermelon Theme for RemNote
+   ========================================= */
+
+/* --- LIGHT MODE --- */
+/*
+  Surprising Watermelon Light for RemNote
+  Companion light theme to the dark Surprising Watermelon build.
+  Intended for RemNote light mode.
+
+  v0.2.0:
+  - Softer light background, reduced brightness fatigue.
+  - Still reads as a proper light theme, not a dim theme.
+  - Same visual family as the dark Surprising Watermelon theme.
+  - Same heading / quote / code logic as the final dark theme.
+
+  Use as either:
+  1) one Custom CSS block for a light-only setup, or
+  2) theme.css inside a RemNote Theme plugin package.
+*/
+
+/* ------------------------------
+   1. Palette / design tokens
+   ------------------------------ */
+:root,
+.light {
+  /* Core light palette */
+  --swl-bg: #f1f6f4;
+  --swl-bg-deep: #e6efec;
+  --swl-surface: #ebf3f0;
+  --swl-surface-raised: #f9fcfb;
+  --swl-subheader: #e3ece9;
+  --swl-element: #e5eeeb;
+  --swl-element-hover: #d9e7e2;
+  --swl-border: #cfddd8;
+  --swl-border-soft: #c4d5cf;
+
+  --swl-fg: #263f46;
+  --swl-muted: #4b6970;
+  --swl-dim: #6b868b;
+  --swl-disabled: #263f4680;
+
+  --swl-accent: #da6c62;
+  --swl-accent-soft: #da6c6220;
+  --swl-accent-faint: #da6c6214;
+  --swl-accent-highlight: #da6c6230;
+  --swl-on-accent: #fffaf8;
+
+  --swl-cyan: #008c98;
+  --swl-green: #7eaf4f;
+  --swl-purple: #a45ea0;
+  --swl-blue: #4778a6;
+  --swl-gold: #b48337;
+  --swl-warning: #b98733;
+  --swl-orange: #d8891f;
+  --swl-yellow: #e6c64d;
+  --swl-red: #b64646;
+  --swl-error: #cc4b3d;
+
+  /* Readable text accents */
+  --swl-bold-text: #c95b52;
+  --swl-blue-text: #4d8793;
+  --swl-error-text: #c04b42;
+  --swl-tertiary-readable: #648289;
+
+  /* Outliner child/indent lines off */
+  --swl-indent-line: transparent;
+
+  /* Friendly aliases inspired by Red-Carpet-KaTex */
+  --main-color: var(--swl-bg);
+  --2ndary-color: var(--swl-surface);
+  --scoendary-clolor: var(--swl-accent);
+  --bold-color: var(--swl-bold-text);
+  --text-color: var(--swl-fg);
+  --H-red: var(--swl-red);
+  --h-red: var(--swl-red);
+  --H-orange: var(--swl-orange);
+  --H-yellow: var(--swl-yellow);
+  --H-blue: var(--swl-cyan);
+  --H-purble: var(--swl-purple);
+  --H-green: var(--swl-green);
+  --yellow-text-color: #2b2220;
+  --purple-text-color: #ffffff;
+  --cloze-color: #e8f0ed;
+  --border-bottom: #008c9880;
+  --cloze-text: var(--swl-cyan);
+
+  /* RemNote-ish aliases */
+  --rn-clr-background: var(--swl-bg);
+  --rn-clr-background-primary: var(--swl-bg);
+  --rn-clr-background-secondary: var(--swl-surface);
+  --rn-clr-background-tertiary: var(--swl-bg-deep);
+  --rn-clr-background-quaternary: var(--swl-bg-deep);
+  --rn-clr-background-accent: var(--swl-accent);
+  --rn-clr-background-light-accent: var(--swl-accent-soft);
+  --rn-clr-background-elevation-5: var(--swl-surface-raised);
+  --rn-clr-background-elevation-10: var(--swl-surface-raised);
+  --rn-clr-background-elevation-20: var(--swl-element);
+  --rn-clr-content-primary: var(--swl-fg);
+  --rn-clr-content-secondary: var(--swl-muted);
+  --rn-clr-content-tertiary: var(--swl-dim);
+  --rn-clr-content-accent: var(--swl-accent);
+  --rn-clr-content-on-color: var(--swl-on-accent);
+  --rn-clr-border-opaque: var(--swl-border-soft);
+  --rn-clr-border-selected: var(--swl-accent);
+  --rn-clr-border-accent: var(--swl-accent);
+
+  /* Final polish tokens */
+  --swl-focus-outline: #da6c6259;
+  --swl-focus-outline-cyan: #008c9870;
+  --swl-link-hover: #00a7b6;
+
+  /* Highlight contrast */
+  --swl-highlight-ink: #1f2a2d;
+  --swl-highlight-ink-red: #fff8f6;
+  --swl-highlight-underline-dark: #1f2a2dcc;
+  --swl-highlight-underline-red: #fff8f6cc;
+
+  /* Code */
+  --swl-code-bg: #f5ece9;
+  --swl-code-fg: #86512d;
+  --swl-code-border: #dabcb2;
+  --swl-code-shadow: #da6c6214;
+
+  /* Quote chip */
+  --swl-quote-chip-bg:
+    linear-gradient(
+      90deg,
+      #da6c620f 0%,
+      #f5f9f7dd 56%,
+      #f1f6f4 100%
+    );
+  --swl-quote-chip-text: #294046;
+  --swl-quote-chip-border: #c4d5cf;
+  --swl-quote-chip-border-focused: #008c9870;
+  --swl-quote-chip-shadow:
+    inset 0 1px 0 #ffffffc4,
+    inset 0 -1px 0 #da6c620d,
+    0 2px 7px #70868111;
+  --swl-quote-chip-shadow-focused:
+    inset 0 1px 0 #ffffffdd,
+    inset 0 -1px 0 #008c9810,
+    0 3px 10px #7a8f8a18;
+  --swl-quote-chip-shadow-hover:
+    inset 0 1px 0 #ffffffd0,
+    inset 0 -1px 0 #da6c6212,
+    0 3px 8px #70868115;
+}
+
+/* ------------------------------
+   2. Global backgrounds and tokens
+   ------------------------------ */
+html,
+body,
+#root,
+.light,
+.rn-app,
+.rn-pane,
+.rn-pane__body,
+.rn-clr-background,
+.rn-clr-background-primary {
+  background-color: var(--swl-bg) !important;
+  color: var(--swl-fg) !important;
+}
+
+.rn-clr-background-secondary {
+  background-color: var(--swl-surface) !important;
+}
+
+.rn-clr-background-tertiary,
+.rn-clr-background-quaternary,
+.rn-clr-background-state-disabled {
+  background-color: var(--swl-bg-deep) !important;
+}
+
+.rn-clr-background-elevation-5,
+.rn-clr-background-elevation-10,
+.rn-clr-background-elevation-15,
+.rn-clr-background-elevation-20,
+.rn-clr-background-elevation-30,
+.rn-clr-background-elevation-40,
+.rn-clr-background-elevation-50,
+.rn-clr-background-elevation-60,
+.rn-clr-background-elevation-70,
+.rn-clr-background-elevation-80,
+.remnote-tooltip-container {
+  background-color: var(--swl-surface-raised) !important;
+}
+
+.rn-clr-background-accent {
+  background-color: var(--swl-accent) !important;
+}
+
+.rn-clr-background-light-accent {
+  background-color: var(--swl-accent-soft) !important;
+}
+
+.rn-clr-background-positive,
+.rn-clr-background-light-positive {
+  background-color: #7eaf4f1c !important;
+}
+
+.rn-clr-background-warning,
+.rn-clr-background-light-warning {
+  background-color: #b9873318 !important;
+}
+
+.rn-clr-background-negative,
+.rn-clr-background-light-negative {
+  background-color: #cc4b3d18 !important;
+}
+
+.rn-clr-content-primary,
+.rn-editor__rem__body__text,
+.rn-all-notes {
+  color: var(--swl-fg) !important;
+}
+
+.rn-clr-content-secondary {
+  color: var(--swl-muted) !important;
+}
+
+.rn-clr-content-tertiary {
+  color: var(--swl-tertiary-readable) !important;
+}
+
+.rn-clr-content-state-disabled {
+  color: var(--swl-disabled) !important;
+}
+
+.rn-clr-content-accent {
+  color: var(--swl-accent) !important;
+}
+
+.rn-clr-content-on-color {
+  color: var(--swl-on-accent) !important;
+}
+
+.rn-clr-content-positive {
+  color: var(--swl-green) !important;
+}
+
+.rn-clr-content-warning,
+.rn-clr-content-state-warning {
+  color: var(--swl-warning) !important;
+}
+
+.rn-clr-content-negative {
+  color: var(--swl-error-text) !important;
+}
+
+.rn-clr-border-opaque,
+.rn-clr-border-light-accent,
+.rn-clr-border-state-disabled {
+  border-color: var(--swl-border-soft) !important;
+}
+
+.rn-clr-border-selected,
+.rn-clr-border-accent,
+.rn-clr-border-accent-light {
+  border-color: var(--swl-accent) !important;
+}
+
+.rn-clr-border-positive {
+  border-color: var(--swl-green) !important;
+}
+
+.rn-clr-border-warning {
+  border-color: var(--swl-warning) !important;
+}
+
+.rn-clr-border-negative {
+  border-color: var(--swl-error-text) !important;
+}
+
+/* ------------------------------
+   3. App shell, panes, menus, omnibar
+   ------------------------------ */
+#document-sidebar,
+.rn-sidebar,
+.rn-pane__top-bar,
+.top-bar-container,
+.rn-floating-toolbar,
+.rn-popup.popup-menu > .rn-popup__content,
+div[data-cy="selected-text-menu"],
+div[data-cy="tag-configure-options"] > div,
+div[data-omnibar-results="true"],
+div[data-cy="omnibar"],
+.rich-text-editor__search-results div[data-search-result="search-result-panel"],
+#search-results__no-results {
+  background: var(--swl-bg-deep) !important;
+  color: var(--swl-fg) !important;
+}
+
+.rn-popup.popup-menu > .rn-popup__content,
+.rn-floating-toolbar,
+div[data-cy="selected-text-menu"],
+div[data-cy="omnibar"] {
+  border: 1px solid var(--swl-border-soft) !important;
+  box-shadow: 0 8px 24px #7a8f8a18 !important;
+}
+
+#search-results__result.rn-clr-background--hovered,
+#search-results__result:hover,
+.rn-menu__item:hover,
+.rn-button--hovered,
+.rn-clr-background--hovered {
+  background: var(--swl-element-hover) !important;
+}
+
+#search-results__result div[label="Search All Notes"] {
+  margin-right: 12px;
+}
+
+div[data-cy="omnibar"][data-omnibar-type="command"] div[data-text-type="label"] {
+  margin-left: 8px !important;
+  padding-top: 4px !important;
+  padding-bottom: 8px !important;
+}
+
+.table-cell-or-list-container:not([class*="!bg-gray-5"]) {
+  background-color: var(--swl-bg) !important;
+}
+
+.table-cell-list-container {
+  z-index: 0 !important;
+}
+
+/* Demo tabs plugin compatibility */
+[data-plugin-id="demo-tabs"] .h-\[50px\] {
+  height: 32px !important;
+  font-size: 14px;
+}
+
+div[data-plugin-id="demo-tabs"] .h-\[50px\].rn-clr-background-secondary,
+div[data-plugin-id="demo-tabs"] .h-\[50px\].rn-clr-background-primary,
+div[data-plugin-id="demo-tabs"] > div > div.rn-clr-background-secondary,
+div[data-plugin-id="demo-tabs"] div.smooth-dnd-container .rn-clr-background-secondary,
+div[data-plugin-id="demo-tabs"] div.smooth-dnd-container div.rn-clr-background-secondary,
+div[data-plugin-id="demo-tabs"] > div {
+  background-color: var(--swl-bg-deep) !important;
+}
+
+div[data-plugin-id="demo-tabs"] input {
+  background-color: transparent !important;
+  color: var(--swl-fg) !important;
+}
+
+div[data-cy="tag-configure-options"] > div {
+  padding: 24px 32px;
+}
+
+.workInProgressRemEmpty .linear-editor-item:after {
+  color: var(--swl-fg) !important;
+  filter: brightness(0.85);
+}
+
+.rn-work-in-progress-rem {
+  background: var(--swl-element) !important;
+  color: var(--swl-fg) !important;
+}
+
+/* ------------------------------
+   4. Editor text, links, bold/emphasis
+   ------------------------------ */
+.rn-editor__rem__body {
+  background-color: transparent !important;
+}
+
+.rn-rem-reference,
+.rn-highlight-reference {
+  color: var(--swl-cyan) !important;
+  text-decoration: underline 2px #008c9866 !important;
+  text-underline-offset: 2px;
+}
+
+.rn-rem-reference:hover,
+.rn-highlight-reference:hover {
+  color: var(--swl-link-hover) !important;
+  text-decoration-color: #00a7b699 !important;
+}
+
+.bold,
+strong,
+b {
+  color: var(--swl-bold-text) !important;
+  font-weight: 700 !important;
+}
+
+em,
+i,
+.italic {
+  color: var(--swl-blue-text) !important;
+}
+
+.underline {
+  text-decoration-color: var(--swl-warning) !important;
+  text-decoration-thickness: 1.5px !important;
+  text-underline-offset: 2px !important;
+}
+
+::selection {
+  background: var(--swl-accent-soft) !important;
+}
+
+.search-highlight,
+.search-match,
+.rn-search-match {
+  background-color: var(--swl-accent-highlight) !important;
+  color: var(--swl-fg) !important;
+}
+
+/* Better caret visibility */
+body div#hierarchy-editor [contenteditable="true"],
+.rn-editor__rem__body__text [contenteditable="true"] {
+  caret-color: var(--swl-accent) !important;
+}
+
+input,
+textarea {
+  color: var(--swl-fg) !important;
+  caret-color: var(--swl-accent) !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--swl-dim) !important;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: var(--swl-accent);
+}
+
+/* ------------------------------
+   5. Highlight colors / colored rems
+   ------------------------------ */
+.rn-editor__rem__body--red,
+.highlight-color--red {
+  background-color: var(--swl-red) !important;
+  color: #ffffff !important;
+  border-radius: 999px;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+}
+
+.rn-editor__rem__body--orange,
+.highlight-color--orange {
+  background-color: var(--swl-orange) !important;
+  color: #2b2220 !important;
+  border-radius: 999px;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+}
+
+.rn-editor__rem__body--yellow,
+.highlight-color--yellow {
+  background-color: var(--swl-yellow) !important;
+  color: #2b2220 !important;
+  border-radius: 999px;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+}
+
+.rn-editor__rem__body--green,
+.highlight-color--green {
+  background-color: var(--swl-green) !important;
+  color: #f8fffb !important;
+  border-radius: 999px;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+}
+
+.rn-editor__rem__body--blue,
+.highlight-color--blue {
+  background-color: var(--swl-cyan) !important;
+  color: #f8fffb !important;
+  border-radius: 999px;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+}
+
+.rn-editor__rem__body--purple,
+.highlight-color--purple {
+  background-color: var(--swl-purple) !important;
+  color: #ffffff !important;
+  border-radius: 999px;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+}
+
+/* ------------------------------
+   5b. Highlight foreground contrast fix
+   ------------------------------ */
+.highlight-color--red,
+.highlight-color--red *,
+.rn-editor__rem__body--red .rn-editor__rem__body__text,
+.rn-editor__rem__body--red .rn-editor__rem__body__text *,
+.rn-editor__rem__body__text.rn-editor__rem__body--red,
+.rn-editor__rem__body__text.rn-editor__rem__body--red * {
+  color: var(--swl-highlight-ink-red) !important;
+}
+
+.highlight-color--red .rn-rem-reference,
+.highlight-color--red .rn-highlight-reference,
+.rn-editor__rem__body--red .rn-editor__rem__body__text .rn-rem-reference,
+.rn-editor__rem__body--red .rn-editor__rem__body__text .rn-highlight-reference {
+  color: var(--swl-highlight-ink-red) !important;
+  text-decoration-color: var(--swl-highlight-underline-red) !important;
+}
+
+.highlight-color--red .underline,
+.rn-editor__rem__body--red .rn-editor__rem__body__text .underline {
+  text-decoration-color: var(--swl-highlight-underline-red) !important;
+}
+
+.highlight-color--orange,
+.highlight-color--orange *,
+.rn-editor__rem__body--orange .rn-editor__rem__body__text,
+.rn-editor__rem__body--orange .rn-editor__rem__body__text *,
+.rn-editor__rem__body__text.rn-editor__rem__body--orange,
+.rn-editor__rem__body__text.rn-editor__rem__body--orange *,
+.highlight-color--yellow,
+.highlight-color--yellow *,
+.rn-editor__rem__body--yellow .rn-editor__rem__body__text,
+.rn-editor__rem__body--yellow .rn-editor__rem__body__text *,
+.rn-editor__rem__body__text.rn-editor__rem__body--yellow,
+.rn-editor__rem__body__text.rn-editor__rem__body--yellow *,
+.highlight-color--green,
+.highlight-color--green *,
+.rn-editor__rem__body--green .rn-editor__rem__body__text,
+.rn-editor__rem__body--green .rn-editor__rem__body__text *,
+.rn-editor__rem__body__text.rn-editor__rem__body--green,
+.rn-editor__rem__body__text.rn-editor__rem__body--green *,
+.highlight-color--blue,
+.highlight-color--blue *,
+.rn-editor__rem__body--blue .rn-editor__rem__body__text,
+.rn-editor__rem__body--blue .rn-editor__rem__body__text *,
+.rn-editor__rem__body__text.rn-editor__rem__body--blue,
+.rn-editor__rem__body__text.rn-editor__rem__body--blue *,
+.highlight-color--purple,
+.highlight-color--purple *,
+.rn-editor__rem__body--purple .rn-editor__rem__body__text,
+.rn-editor__rem__body--purple .rn-editor__rem__body__text *,
+.rn-editor__rem__body__text.rn-editor__rem__body--purple,
+.rn-editor__rem__body__text.rn-editor__rem__body--purple * {
+  color: var(--swl-highlight-ink) !important;
+}
+
+.highlight-color--orange .rn-rem-reference,
+.highlight-color--orange .rn-highlight-reference,
+.rn-editor__rem__body--orange .rn-editor__rem__body__text .rn-rem-reference,
+.rn-editor__rem__body--orange .rn-editor__rem__body__text .rn-highlight-reference,
+.highlight-color--yellow .rn-rem-reference,
+.highlight-color--yellow .rn-highlight-reference,
+.rn-editor__rem__body--yellow .rn-editor__rem__body__text .rn-rem-reference,
+.rn-editor__rem__body--yellow .rn-editor__rem__body__text .rn-highlight-reference,
+.highlight-color--green .rn-rem-reference,
+.highlight-color--green .rn-highlight-reference,
+.rn-editor__rem__body--green .rn-editor__rem__body__text .rn-rem-reference,
+.rn-editor__rem__body--green .rn-editor__rem__body__text .rn-highlight-reference,
+.highlight-color--blue .rn-rem-reference,
+.highlight-color--blue .rn-highlight-reference,
+.rn-editor__rem__body--blue .rn-editor__rem__body__text .rn-rem-reference,
+.rn-editor__rem__body--blue .rn-editor__rem__body__text .rn-highlight-reference,
+.highlight-color--purple .rn-rem-reference,
+.highlight-color--purple .rn-highlight-reference,
+.rn-editor__rem__body--purple .rn-editor__rem__body__text .rn-rem-reference,
+.rn-editor__rem__body--purple .rn-editor__rem__body__text .rn-highlight-reference {
+  color: var(--swl-highlight-ink) !important;
+  text-decoration-color: var(--swl-highlight-underline-dark) !important;
+}
+
+.highlight-color--orange .underline,
+.rn-editor__rem__body--orange .rn-editor__rem__body__text .underline,
+.highlight-color--yellow .underline,
+.rn-editor__rem__body--yellow .rn-editor__rem__body__text .underline,
+.highlight-color--green .underline,
+.rn-editor__rem__body--green .rn-editor__rem__body__text .underline,
+.highlight-color--blue .underline,
+.rn-editor__rem__body--blue .rn-editor__rem__body__text .underline,
+.highlight-color--purple .underline,
+.rn-editor__rem__body--purple .rn-editor__rem__body__text .underline {
+  text-decoration-color: var(--swl-highlight-underline-dark) !important;
+}
+
+/* ------------------------------
+   6. Tree-node indent borders
+   ------------------------------ */
+body div#hierarchy-editor .TreeNode,
+body div#hierarchy-editor .tree-node--children,
+body div#hierarchy-editor .flattened-children,
+body div#hierarchy-editor .flattened-children-node,
+body div#hierarchy-editor [class*="tree-node--children"],
+body div#hierarchy-editor [class*="flattened-children"] {
+  border-color: transparent !important;
+  border-left-color: transparent !important;
+}
+
+/* ------------------------------
+   7. Clozes, KaTeX, images
+   ------------------------------ */
+.cloze {
+  background-color: var(--cloze-color) !important;
+  color: var(--cloze-text) !important;
+  border-bottom: 1.5px solid var(--border-bottom) !important;
+  padding: 0 0.12em 2px;
+  font-weight: 600;
+  font-style: italic;
+  border-radius: 5px;
+}
+
+.katex,
+.katex-display {
+  color: var(--swl-fg) !important;
+}
+
+/* Prevent harsh media boxes */
+.light .dark\:bg-black,
+.dark\:bg-black {
+  background-color: var(--swl-bg) !important;
+  border-radius: 20px;
+}
+
+/* ------------------------------
+   8. Custom heading styles
+   ------------------------------ */
+.rn-editor__rem__body__text--h1,
+.rn-editor__rem__body__text--h2,
+.rn-editor__rem__body__text--h3 {
+  font-size: inherit !important;
+  font-weight: normal !important;
+  line-height: inherit !important;
+  display: block !important;
+  box-sizing: border-box;
+  padding: 4px 8px !important;
+  margin-top: 0.6em !important;
+  margin-bottom: 0.3em !important;
+  border-radius: 5px;
+}
+
+.rn-editor__rem__body__text--h1 {
+  background: var(--swl-accent) !important;
+  color: var(--swl-on-accent) !important;
+  border: none !important;
+  border-radius: 5px !important;
+  box-shadow: none !important;
+}
+
+.rn-editor__rem__body__text--h2 {
+  background: transparent !important;
+  color: var(--swl-fg) !important;
+  border: none !important;
+  border-top: 2px solid var(--swl-accent) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.rn-editor__rem__body__text--h3 {
+  background: transparent !important;
+  color: var(--swl-fg) !important;
+  border: none !important;
+  border-left: 3px solid var(--swl-accent) !important;
+  border-top: 1px solid #9bb0ac80 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding-left: 10px !important;
+}
+
+body div#hierarchy-editor .rn-editor__rem__body__text--h1,
+body div#hierarchy-editor .rn-editor__rem__body__text--h2,
+body div#hierarchy-editor .rn-editor__rem__body__text--h3 {
+  margin-left: 1.5em !important;
+  width: calc(100% - 1.5em) !important;
+  max-width: calc(100% - 1.5em) !important;
+  overflow-wrap: anywhere;
+}
+
+body div#hierarchy-editor
+  .rn-editor__rem__body__text--h1
+  :is(
+    .rn-rem-reference,
+    .rn-highlight-reference,
+    strong,
+    b,
+    .bold,
+    em,
+    i,
+    .italic,
+    .underline
+  ) {
+  color: var(--swl-on-accent) !important;
+  text-decoration-color: #ffffff99 !important;
+}
+
+/* ------------------------------
+   9. Scrollbars
+   ------------------------------ */
+* {
+  scrollbar-color: #9eb5b040 transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #9eb5b033;
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: #9eb5b055;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ------------------------------
+   10. Inline code polish
+   ------------------------------ */
+.rn-editor__rem__body__text code,
+.RichTextViewer code,
+.rn-doc-title code,
+.rn-editor__rem__body__text .code,
+.RichTextViewer .code,
+.rn-doc-title .code,
+.rn-editor__rem__body__text .inline-code,
+.RichTextViewer .inline-code,
+.rn-doc-title .inline-code,
+.rn-editor__rem__body__text .rn-code,
+.RichTextViewer .rn-code,
+.rn-doc-title .rn-code,
+.rn-editor__rem__body__text [data-linear-editor-item-type="code"],
+.RichTextViewer [data-linear-editor-item-type="code"],
+.rn-doc-title [data-linear-editor-item-type="code"] {
+  background-color: var(--swl-code-bg) !important;
+  color: var(--swl-code-fg) !important;
+  border: 1px solid var(--swl-code-border) !important;
+  border-radius: 5px !important;
+  padding: 0.05em 0.28em !important;
+  box-shadow: inset 0 -1px 0 var(--swl-code-shadow) !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-size: 0.92em !important;
+}
+
+.rn-card-delimiter,
+.separator-symbol,
+.MultiLineCardIndicator,
+.rn-card-delimiter code,
+.separator-symbol code,
+.MultiLineCardIndicator code,
+.rn-card-delimiter .code,
+.separator-symbol .code,
+.MultiLineCardIndicator .code,
+.rn-card-delimiter [data-linear-editor-item-type="code"],
+.separator-symbol [data-linear-editor-item-type="code"],
+.MultiLineCardIndicator [data-linear-editor-item-type="code"],
+.katex code,
+.katex-display code,
+.katex .code,
+.katex-display .code,
+.katex [data-linear-editor-item-type="code"],
+.katex-display [data-linear-editor-item-type="code"] {
+  background: transparent !important;
+  background-color: transparent !important;
+  color: inherit !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  font-family: inherit !important;
+  font-size: inherit !important;
+}
+
+/* ------------------------------
+   11. Quotes — tight transparent chip, no left rail
+   ------------------------------ */
+body div#hierarchy-editor
+  .rn-editor-container.rn-quote[data-rem-container-tags~="quote"] {
+  background: transparent !important;
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+  isolation: isolate;
+}
+
+body div#hierarchy-editor
+  .rn-editor-container.rn-quote[data-rem-container-tags~="quote"]
+  > .tree-node--parent.rn-quote-content {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+
+  border: 0 !important;
+  border-left: 0 !important;
+  border-radius: 0 !important;
+
+  box-shadow: none !important;
+  outline: 0 !important;
+
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  padding-left: 2px !important;
+  padding-right: 0 !important;
+
+  box-sizing: border-box !important;
+  overflow: visible !important;
+}
+
+body div#hierarchy-editor
+  .rn-editor-container.rn-quote[data-rem-container-tags~="quote"]
+  .rn-editor__rem__body {
+  background: transparent !important;
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+}
+
+body div#hierarchy-editor
+  .rn-editor-container.rn-quote[data-rem-container-tags~="quote"]
+  .rn-editor__rem__body__text.rn-quote-inner {
+  background: transparent !important;
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+
+  color: var(--swl-quote-chip-text) !important;
+  font-style: normal !important;
+  line-height: inherit !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  margin-left: -2px !important;
+}
+
+body div#hierarchy-editor
+  .rn-editor-container.rn-quote[data-rem-container-tags~="quote"]:focus-within
+  [contenteditable="true"] {
+  caret-color: var(--swl-cyan) !important;
+}
+
+body div#hierarchy-editor
+  .rn-editor-container.rn-quote[data-rem-container-tags~="quote"]
+  .rn-editor__rem__body__text.rn-quote-inner
+  > .rich-text-editor {
+  display: inline-block !important;
+  width: auto !important;
+  max-width: 100% !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+body div#hierarchy-editor
+  .rn-editor-container.rn-quote[data-rem-container-tags~="quote"]
+  .rn-editor__rem__body__text.rn-quote-inner
+  > .rich-text-editor
+  > .EditorContainer {
+  display: inline !important;
+  width: auto !important;
+  max-width: 100% !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+body div#hierarchy-editor
+  .rn-editor-container.rn-quote[data-rem-container-tags~="quote"]
+  .rn-editor__rem__body__text.rn-quote-inner
+  > .rich-text-editor
+  > .EditorContainer
+  > [data-linear-editor-text] {
+  display: inline-block !important;
+  width: auto !important;
+  max-width: 100% !important;
+
+  background: var(--swl-quote-chip-bg) !important;
+  color: var(--swl-quote-chip-text) !important;
+
+  border: 1px solid var(--swl-quote-chip-border) !important;
+  border-radius: 6px !important;
+  box-shadow: var(--swl-quote-chip-shadow) !important;
+
+  padding: 0.11em 0.26em 0.14em 0.2em !important;
+
+  line-height: inherit !important;
+  white-space: pre-wrap !important;
+  overflow-wrap: anywhere !important;
+  vertical-align: baseline !important;
+  box-sizing: border-box !important;
+}
+
+body div#hierarchy-editor
+  .rn-editor-container.rn-quote[data-rem-container-tags~="quote"]:not(:focus-within):hover
+  .rn-editor__rem__body__text.rn-quote-inner
+  > .rich-text-editor
+  > .EditorContainer
+  > [data-linear-editor-text] {
+  border-color: #bfd2cd !important;
+  box-shadow: var(--swl-quote-chip-shadow-hover) !important;
+}
+
+body div#hierarchy-editor
+  .rn-editor-container.rn-quote[data-rem-container-tags~="quote"]:focus-within
+  .rn-editor__rem__body__text.rn-quote-inner
+  > .rich-text-editor
+  > .EditorContainer
+  > [data-linear-editor-text] {
+  border-color: var(--swl-quote-chip-border-focused) !important;
+  box-shadow: var(--swl-quote-chip-shadow-focused) !important;
+}
+
+body div#hierarchy-editor
+  .rn-editor-container.rn-quote[data-rem-container-tags~="quote"]
+  .rn-editor__rem__body__text.rn-quote-inner
+  [data-linear-editor-leaf-container],
+body div#hierarchy-editor
+  .rn-editor-container.rn-quote[data-rem-container-tags~="quote"]
+  .rn-editor__rem__body__text.rn-quote-inner
+  [data-linear-editor-leaf-wrapper],
+body div#hierarchy-editor
+  .rn-editor-container.rn-quote[data-rem-container-tags~="quote"]
+  .rn-editor__rem__body__text.rn-quote-inner
+  [data-linear-editor-editable-leaf],
+body div#hierarchy-editor
+  .rn-editor-container.rn-quote[data-rem-container-tags~="quote"]
+  .rn-editor__rem__body__text.rn-quote-inner
+  .linear-editor-item {
+  background: transparent !important;
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+  color: inherit !important;
+}
+
+body div#hierarchy-editor
+  .rn-editor-container.rn-quote[data-rem-container-tags~="quote"]
+  .rn-editor__rem__body__text.rn-quote-inner
+  :is(strong, b, .bold) {
+  color: var(--swl-bold-text) !important;
+}
+
+body div#hierarchy-editor
+  .rn-editor-container.rn-quote[data-rem-container-tags~="quote"]
+  .rn-editor__rem__body__text.rn-quote-inner
+  :is(em, i, .italic) {
+  color: var(--swl-blue-text) !important;
+}
+
+body div#hierarchy-editor
+  .rn-editor-container.rn-quote[data-rem-container-tags~="quote"]
+  .rn-editor__rem__body__text.rn-quote-inner
+  :is(.rn-rem-reference, .rn-highlight-reference) {
+  color: var(--swl-cyan) !important;
+  text-decoration-color: #008c9880 !important;
+}
+
+body div#hierarchy-editor
+  .rn-editor-container.rn-quote[data-rem-container-tags~="quote"]
+  .rn-editor__rem__body__text.rn-quote-inner
+  :is(
+    code,
+    .code,
+    .inline-code,
+    .rn-code,
+    [data-linear-editor-item-type="code"]
+  ) {
+  background-color: var(--swl-code-bg) !important;
+  color: var(--swl-code-fg) !important;
+  border: 1px solid var(--swl-code-border) !important;
+  border-radius: 5px !important;
+  padding: 0.05em 0.28em !important;
+  box-shadow: inset 0 -1px 0 var(--swl-code-shadow) !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-size: 0.92em !important;
+}
+
+/* Restore inline highlights inside quotes */
+body div#hierarchy-editor
+  .rn-editor-container.rn-quote[data-rem-container-tags~="quote"]
+  .rn-editor__rem__body__text.rn-quote-inner
+  .highlight-color--red {
+  background-color: var(--swl-red) !important;
+  color: var(--swl-highlight-ink-red) !important;
+  border-radius: 999px !important;
+  border-left: 6px solid transparent !important;
+  border-right: 6px solid transparent !important;
+}
+
+body div#hierarchy-editor
+  .rn-editor-container.rn-quote[data-rem-container-tags~="quote"]
+  .rn-editor__rem__body__text.rn-quote-inner
+  .highlight-color--orange {
+  background-color: var(--swl-orange) !important;
+  color: var(--swl-highlight-ink) !important;
+  border-radius: 999px !important;
+  border-left: 6px solid transparent !important;
+  border-right: 6px solid transparent !important;
+}
+
+body div#hierarchy-editor
+  .rn-editor-container.rn-quote[data-rem-container-tags~="quote"]
+  .rn-editor__rem__body__text.rn-quote-inner
+  .highlight-color--yellow {
+  background-color: var(--swl-yellow) !important;
+  color: var(--swl-highlight-ink) !important;
+  border-radius: 999px !important;
+  border-left: 6px solid transparent !important;
+  border-right: 6px solid transparent !important;
+}
+
+body div#hierarchy-editor
+  .rn-editor-container.rn-quote[data-rem-container-tags~="quote"]
+  .rn-editor__rem__body__text.rn-quote-inner
+  .highlight-color--green {
+  background-color: var(--swl-green) !important;
+  color: #f8fffb !important;
+  border-radius: 999px !important;
+  border-left: 6px solid transparent !important;
+  border-right: 6px solid transparent !important;
+}
+
+body div#hierarchy-editor
+  .rn-editor-container.rn-quote[data-rem-container-tags~="quote"]
+  .rn-editor__rem__body__text.rn-quote-inner
+  .highlight-color--blue {
+  background-color: var(--swl-cyan) !important;
+  color: #f8fffb !important;
+  border-radius: 999px !important;
+  border-left: 6px solid transparent !important;
+  border-right: 6px solid transparent !important;
+}
+
+body div#hierarchy-editor
+  .rn-editor-container.rn-quote[data-rem-container-tags~="quote"]
+  .rn-editor__rem__body__text.rn-quote-inner
+  .highlight-color--purple {
+  background-color: var(--swl-purple) !important;
+  color: #ffffff !important;
+  border-radius: 999px !important;
+  border-left: 6px solid transparent !important;
+  border-right: 6px solid transparent !important;
+}
+
+body div#hierarchy-editor
+  .rn-editor-container.rn-quote[data-rem-container-tags~="quote"]
+  .rem-inner-overlay {
+  background: transparent !important;
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+  mix-blend-mode: normal !important;
+  opacity: 0 !important;
+}
+
+body div#hierarchy-editor
+  .rn-editor-container.rn-quote[data-rem-container-tags~="quote"]
+  .rn-quote-content
+  .rem-button__container {
+  opacity: 0.55 !important;
+  transition: opacity 120ms ease-in-out !important;
+  transform: translateX(3.5px) !important;
+}
+
+body div#hierarchy-editor
+  .rn-editor-container.rn-quote[data-rem-container-tags~="quote"]
+  .rn-quote-content:hover
+  .rem-button__container,
+body div#hierarchy-editor
+  .rn-editor-container.rn-quote[data-rem-container-tags~="quote"]
+  .rn-quote-content:focus-within
+  .rem-button__container {
+  opacity: 1 !important;
+}
+
+/* --- DARK MODE --- */
+.dark {
+/*
+  Surprising Watermelon for RemNote
+  Palette adapted from Bearded Theme "Surprising Watermelon".
+  Intended for RemNote dark mode.
+
+  v0.4.0 final:
+  - Tight text-hugging transparent quote chips.
+  - Quote chips have no left rail.
+  - Quote bullet/text alignment tuned.
+  - Original calm H1/H2/H3 heading system retained.
+  - Low-risk polish pass included:
+    caret visibility, link hover, form controls, heading overflow safety,
+    H1 nested-format readability, quote hover, inline code/highlight restoration inside quotes.
+
+  Use as either:
+  1) one Custom CSS block, or
+  2) theme.css inside a RemNote Theme plugin package.
+*/
+
+/* ------------------------------
+   1. Palette / design tokens
+   ------------------------------ */
+& {
+  /* Bearded Surprising Watermelon core */
+  --sw-bg: #142326;
+  --sw-bg-deep: #101c1f;
+  --sw-surface: #121f22;
+  --sw-surface-raised: #1d3237;
+  --sw-subheader: #1e343a;
+  --sw-element: #192b30;
+  --sw-element-hover: #213a41;
+  --sw-border: #091112;
+  --sw-border-soft: #091112b3;
+
+  --sw-fg: #c1d9de;
+  --sw-muted: #a0c5cc;
+  --sw-dim: #416f79;
+  --sw-disabled: #c1d9de80;
+
+  --sw-accent: #da6c62;
+  --sw-accent-soft: #da6c6233;
+  --sw-accent-faint: #da6c621a;
+  --sw-accent-highlight: #da6c624d;
+  --sw-on-accent: #020405;
+
+  --sw-cyan: #00B3BD;
+  --sw-green: #a9dc76;
+  --sw-purple: #c47cbf;
+  --sw-blue: #5288BA;
+  --sw-gold: #CC9B52;
+  --sw-warning: #d1a456;
+  --sw-orange: #ff9f1c;
+  --sw-yellow: #ffe066;
+  --sw-red: #C13838;
+  --sw-error: #E35535;
+
+  /* Readable text accents on dark surfaces. */
+  --sw-bold-text: #ff8d85;
+  --sw-blue-text: #7ab8c4;
+  --sw-error-text: #ff8a78;
+  --sw-tertiary-readable: #6da7b2;
+
+  /* Outliner child/indent lines. Option 01 was chosen: off by default. */
+  --sw-indent-line: transparent;
+
+  /* Friendly aliases inspired by Red-Carpet-KaTex. */
+  --main-color: var(--sw-bg);
+  --2ndary-color: var(--sw-surface);
+  --scoendary-clolor: var(--sw-accent); /* keeping the old typo alias for compatibility */
+  --bold-color: var(--sw-bold-text);
+  --text-color: var(--sw-fg);
+  --H-red: var(--sw-red);
+  --h-red: var(--sw-red);
+  --H-orange: var(--sw-orange);
+  --H-yellow: var(--sw-yellow);
+  --H-blue: var(--sw-cyan);
+  --H-purble: var(--sw-purple);
+  --H-green: var(--sw-green);
+  --yellow-text-color: var(--sw-on-accent);
+  --purple-text-color: var(--sw-on-accent);
+  --cloze-color: var(--sw-surface-raised);
+  --border-bottom: #00b3bd80;
+  --cloze-text: var(--sw-cyan);
+
+  /* If parts of RemNote read CSS variables rather than token classes, this helps. */
+  --rn-clr-background: var(--sw-bg);
+  --rn-clr-background-primary: var(--sw-bg);
+  --rn-clr-background-secondary: var(--sw-surface);
+  --rn-clr-background-tertiary: var(--sw-bg-deep);
+  --rn-clr-background-quaternary: var(--sw-bg-deep);
+  --rn-clr-background-accent: var(--sw-accent);
+  --rn-clr-background-light-accent: var(--sw-accent-soft);
+  --rn-clr-background-elevation-5: var(--sw-surface-raised);
+  --rn-clr-background-elevation-10: var(--sw-surface-raised);
+  --rn-clr-background-elevation-20: var(--sw-element);
+  --rn-clr-content-primary: var(--sw-fg);
+  --rn-clr-content-secondary: var(--sw-muted);
+  --rn-clr-content-tertiary: var(--sw-dim);
+  --rn-clr-content-accent: var(--sw-accent);
+  --rn-clr-content-on-color: var(--sw-on-accent);
+  --rn-clr-border-opaque: var(--sw-border-soft);
+  --rn-clr-border-selected: var(--sw-accent);
+  --rn-clr-border-accent: var(--sw-accent);
+
+  /* Final polish tokens. */
+  --sw-focus-outline: #da6c6266;
+  --sw-focus-outline-cyan: #00b3bd80;
+  --sw-link-hover: #00e3f0;
+}
+
+/* ------------------------------
+   2. Global backgrounds and tokens
+   ------------------------------ */
+html,
+body,
+#root,
+.dark,
+.rn-app,
+.rn-pane,
+.rn-pane__body,
+.rn-clr-background,
+.rn-clr-background-primary {
+  background-color: var(--sw-bg) !important;
+  color: var(--sw-fg) !important;
+}
+
+.rn-clr-background-secondary {
+  background-color: var(--sw-surface) !important;
+}
+
+.rn-clr-background-tertiary,
+.rn-clr-background-quaternary,
+.rn-clr-background-state-disabled {
+  background-color: var(--sw-bg-deep) !important;
+}
+
+.rn-clr-background-elevation-5,
+.rn-clr-background-elevation-10,
+.rn-clr-background-elevation-15,
+.rn-clr-background-elevation-20,
+.rn-clr-background-elevation-30,
+.rn-clr-background-elevation-40,
+.rn-clr-background-elevation-50,
+.rn-clr-background-elevation-60,
+.rn-clr-background-elevation-70,
+.rn-clr-background-elevation-80,
+.remnote-tooltip-container {
+  background-color: var(--sw-surface-raised) !important;
+}
+
+.rn-clr-background-accent {
+  background-color: var(--sw-accent) !important;
+}
+
+.rn-clr-background-light-accent {
+  background-color: var(--sw-accent-soft) !important;
+}
+
+.rn-clr-background-positive,
+.rn-clr-background-light-positive {
+  background-color: #a9dc7626 !important;
+}
+
+.rn-clr-background-warning,
+.rn-clr-background-light-warning {
+  background-color: #d1a45626 !important;
+}
+
+.rn-clr-background-negative,
+.rn-clr-background-light-negative {
+  background-color: #e3553526 !important;
+}
+
+.rn-clr-content-primary,
+.rn-editor__rem__body__text,
+.rn-all-notes {
+  color: var(--sw-fg) !important;
+}
+
+.rn-clr-content-secondary {
+  color: var(--sw-muted) !important;
+}
+
+.rn-clr-content-tertiary {
+  color: var(--sw-tertiary-readable) !important;
+}
+
+.rn-clr-content-state-disabled {
+  color: var(--sw-disabled) !important;
+}
+
+.rn-clr-content-accent {
+  color: var(--sw-accent) !important;
+}
+
+.rn-clr-content-on-color {
+  color: var(--sw-on-accent) !important;
+}
+
+.rn-clr-content-positive {
+  color: var(--sw-green) !important;
+}
+
+.rn-clr-content-warning,
+.rn-clr-content-state-warning {
+  color: var(--sw-warning) !important;
+}
+
+.rn-clr-content-negative {
+  color: var(--sw-error-text) !important;
+}
+
+.rn-clr-border-opaque,
+.rn-clr-border-light-accent,
+.rn-clr-border-state-disabled {
+  border-color: var(--sw-border-soft) !important;
+}
+
+.rn-clr-border-selected,
+.rn-clr-border-accent,
+.rn-clr-border-accent-light {
+  border-color: var(--sw-accent) !important;
+}
+
+.rn-clr-border-positive {
+  border-color: var(--sw-green) !important;
+}
+
+.rn-clr-border-warning {
+  border-color: var(--sw-warning) !important;
+}
+
+.rn-clr-border-negative {
+  border-color: var(--sw-error-text) !important;
+}
+
+/* ------------------------------
+   3. App shell, panes, menus, omnibar
+   ------------------------------ */
+#document-sidebar,
+.rn-sidebar,
+.rn-pane__top-bar,
+.top-bar-container,
+.rn-floating-toolbar,
+.rn-popup.popup-menu > .rn-popup__content,
+div[data-cy="selected-text-menu"],
+div[data-cy="tag-configure-options"] > div,
+div[data-omnibar-results="true"],
+div[data-cy="omnibar"],
+.rich-text-editor__search-results div[data-search-result="search-result-panel"],
+#search-results__no-results {
+  background: var(--sw-bg-deep) !important;
+  color: var(--sw-fg) !important;
+}
+
+.rn-popup.popup-menu > .rn-popup__content,
+.rn-floating-toolbar,
+div[data-cy="selected-text-menu"],
+div[data-cy="omnibar"] {
+  border: 1px solid var(--sw-border-soft) !important;
+  box-shadow: 0 10px 30px #02040566 !important;
+}
+
+#search-results__result.rn-clr-background--hovered,
+#search-results__result:hover,
+.rn-menu__item:hover,
+.rn-button--hovered,
+.rn-clr-background--hovered {
+  background: var(--sw-element-hover) !important;
+}
+
+#search-results__result div[label="Search All Notes"] {
+  margin-right: 12px;
+}
+
+div[data-cy="omnibar"][data-omnibar-type="command"] div[data-text-type="label"] {
+  margin-left: 8px !important;
+  padding-top: 4px !important;
+  padding-bottom: 8px !important;
+}
+
+.table-cell-or-list-container:not([class*="!bg-gray-5"]) {
+  background-color: var(--sw-bg) !important;
+}
+
+.table-cell-list-container {
+  z-index: 0 !important;
+}
+
+/* Demo tabs plugin compatibility, adapted from Min Dark. */
+[data-plugin-id="demo-tabs"] .h-\[50px\] {
+  height: 32px !important;
+  font-size: 14px;
+}
+
+div[data-plugin-id="demo-tabs"] .h-\[50px\].rn-clr-background-secondary,
+div[data-plugin-id="demo-tabs"] .h-\[50px\].rn-clr-background-primary,
+div[data-plugin-id="demo-tabs"] > div > div.rn-clr-background-secondary,
+div[data-plugin-id="demo-tabs"] div.smooth-dnd-container .rn-clr-background-secondary,
+div[data-plugin-id="demo-tabs"] div.smooth-dnd-container div.rn-clr-background-secondary,
+div[data-plugin-id="demo-tabs"] > div {
+  background-color: var(--sw-bg-deep) !important;
+}
+
+div[data-plugin-id="demo-tabs"] input {
+  background-color: transparent !important;
+  color: var(--sw-fg) !important;
+}
+
+div[data-cy="tag-configure-options"] > div {
+  padding: 24px 32px;
+}
+
+.workInProgressRemEmpty .linear-editor-item:after {
+  color: var(--sw-fg) !important;
+  filter: brightness(0.7);
+}
+
+.rn-work-in-progress-rem {
+  background: var(--sw-element) !important;
+  color: var(--sw-fg) !important;
+}
+
+/* ------------------------------
+   4. Editor text, links, bold/emphasis
+   ------------------------------ */
+.rn-editor__rem__body {
+  background-color: transparent !important;
+}
+
+.rn-rem-reference,
+.rn-highlight-reference {
+  color: var(--sw-cyan) !important;
+  text-decoration: underline 2px #00b3bd80 !important;
+  text-underline-offset: 2px;
+}
+
+.rn-rem-reference:hover,
+.rn-highlight-reference:hover {
+  color: var(--sw-link-hover) !important;
+  text-decoration-color: #00e3f0cc !important;
+}
+
+.bold,
+strong,
+b {
+  color: var(--sw-bold-text) !important;
+  font-weight: 700 !important;
+}
+
+em,
+i,
+.italic {
+  color: var(--sw-blue-text) !important;
+}
+
+.underline {
+  text-decoration-color: var(--sw-warning) !important;
+  text-decoration-thickness: 1.5px !important;
+  text-underline-offset: 2px !important;
+}
+
+/* Selection / search / active-ish surfaces. */
+::selection {
+  background: var(--sw-accent-soft) !important;
+}
+
+.search-highlight,
+.search-match,
+.rn-search-match {
+  background-color: var(--sw-accent-highlight) !important;
+  color: var(--sw-fg) !important;
+}
+
+/* Better caret visibility in dark editor surfaces. */
+body div#hierarchy-editor [contenteditable="true"],
+.rn-editor__rem__body__text [contenteditable="true"] {
+  caret-color: var(--sw-accent) !important;
+}
+
+/* Native form controls, where RemNote exposes them. */
+input,
+textarea {
+  color: var(--sw-fg) !important;
+  caret-color: var(--sw-accent) !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--sw-dim) !important;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: var(--sw-accent);
+}
+
+/* ------------------------------
+   5. Highlight colors / colored rems
+   ------------------------------ */
+.rn-editor__rem__body--red,
+.highlight-color--red {
+  background-color: var(--sw-red) !important;
+  color: #ffffff !important;
+  border-radius: 999px;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+}
+
+.rn-editor__rem__body--orange,
+.highlight-color--orange {
+  background-color: var(--sw-orange) !important;
+  color: var(--sw-on-accent) !important;
+  border-radius: 999px;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+}
+
+.rn-editor__rem__body--yellow,
+.highlight-color--yellow {
+  background-color: var(--sw-yellow) !important;
+  color: var(--sw-on-accent) !important;
+  border-radius: 999px;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+}
+
+.rn-editor__rem__body--green,
+.highlight-color--green {
+  background-color: var(--sw-green) !important;
+  color: var(--sw-on-accent) !important;
+  border-radius: 999px;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+}
+
+.rn-editor__rem__body--blue,
+.highlight-color--blue {
+  background-color: var(--sw-cyan) !important;
+  color: var(--sw-on-accent) !important;
+  border-radius: 999px;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+}
+
+.rn-editor__rem__body--purple,
+.highlight-color--purple {
+  background-color: var(--sw-purple) !important;
+  color: var(--sw-on-accent) !important;
+  border-radius: 999px;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+}
+
+/* ------------------------------
+   5b. Highlight foreground contrast fix
+   ------------------------------ */
+& {
+  --sw-highlight-ink: #142326;
+  --sw-highlight-ink-red: #fff7f4;
+  --sw-highlight-underline-dark: #142326cc;
+  --sw-highlight-underline-red: #fff7f4cc;
+}
+
+/* Red remains the one highlight that reads better with light text. */
+.highlight-color--red,
+.highlight-color--red *,
+.rn-editor__rem__body--red .rn-editor__rem__body__text,
+.rn-editor__rem__body--red .rn-editor__rem__body__text *,
+.rn-editor__rem__body__text.rn-editor__rem__body--red,
+.rn-editor__rem__body__text.rn-editor__rem__body--red * {
+  color: var(--sw-highlight-ink-red) !important;
+}
+
+.highlight-color--red .rn-rem-reference,
+.highlight-color--red .rn-highlight-reference,
+.rn-editor__rem__body--red .rn-editor__rem__body__text .rn-rem-reference,
+.rn-editor__rem__body--red .rn-editor__rem__body__text .rn-highlight-reference {
+  color: var(--sw-highlight-ink-red) !important;
+  text-decoration-color: var(--sw-highlight-underline-red) !important;
+}
+
+.highlight-color--red .underline,
+.rn-editor__rem__body--red .rn-editor__rem__body__text .underline {
+  text-decoration-color: var(--sw-highlight-underline-red) !important;
+}
+
+/* All other highlight fills are bright enough that dark ink is much clearer. */
+.highlight-color--orange,
+.highlight-color--orange *,
+.rn-editor__rem__body--orange .rn-editor__rem__body__text,
+.rn-editor__rem__body--orange .rn-editor__rem__body__text *,
+.rn-editor__rem__body__text.rn-editor__rem__body--orange,
+.rn-editor__rem__body__text.rn-editor__rem__body--orange *,
+.highlight-color--yellow,
+.highlight-color--yellow *,
+.rn-editor__rem__body--yellow .rn-editor__rem__body__text,
+.rn-editor__rem__body--yellow .rn-editor__rem__body__text *,
+.rn-editor__rem__body__text.rn-editor__rem__body--yellow,
+.rn-editor__rem__body__text.rn-editor__rem__body--yellow *,
+.highlight-color--green,
+.highlight-color--green *,
+.rn-editor__rem__body--green .rn-editor__rem__body__text,
+.rn-editor__rem__body--green .rn-editor__rem__body__text *,
+.rn-editor__rem__body__text.rn-editor__rem__body--green,
+.rn-editor__rem__body__text.rn-editor__rem__body--green *,
+.highlight-color--blue,
+.highlight-color--blue *,
+.rn-editor__rem__body--blue .rn-editor__rem__body__text,
+.rn-editor__rem__body--blue .rn-editor__rem__body__text *,
+.rn-editor__rem__body__text.rn-editor__rem__body--blue,
+.rn-editor__rem__body__text.rn-editor__rem__body--blue *,
+.highlight-color--purple,
+.highlight-color--purple *,
+.rn-editor__rem__body--purple .rn-editor__rem__body__text,
+.rn-editor__rem__body--purple .rn-editor__rem__body__text *,
+.rn-editor__rem__body__text.rn-editor__rem__body--purple,
+.rn-editor__rem__body__text.rn-editor__rem__body--purple * {
+  color: var(--sw-highlight-ink) !important;
+}
+
+.highlight-color--orange .rn-rem-reference,
+.highlight-color--orange .rn-highlight-reference,
+.rn-editor__rem__body--orange .rn-editor__rem__body__text .rn-rem-reference,
+.rn-editor__rem__body--orange .rn-editor__rem__body__text .rn-highlight-reference,
+.highlight-color--yellow .rn-rem-reference,
+.highlight-color--yellow .rn-highlight-reference,
+.rn-editor__rem__body--yellow .rn-editor__rem__body__text .rn-rem-reference,
+.rn-editor__rem__body--yellow .rn-editor__rem__body__text .rn-highlight-reference,
+.highlight-color--green .rn-rem-reference,
+.highlight-color--green .rn-highlight-reference,
+.rn-editor__rem__body--green .rn-editor__rem__body__text .rn-rem-reference,
+.rn-editor__rem__body--green .rn-editor__rem__body__text .rn-highlight-reference,
+.highlight-color--blue .rn-rem-reference,
+.highlight-color--blue .rn-highlight-reference,
+.rn-editor__rem__body--blue .rn-editor__rem__body__text .rn-rem-reference,
+.rn-editor__rem__body--blue .rn-editor__rem__body__text .rn-highlight-reference,
+.highlight-color--purple .rn-rem-reference,
+.highlight-color--purple .rn-highlight-reference,
+.rn-editor__rem__body--purple .rn-editor__rem__body__text .rn-rem-reference,
+.rn-editor__rem__body--purple .rn-editor__rem__body__text .rn-highlight-reference {
+  color: var(--sw-highlight-ink) !important;
+  text-decoration-color: var(--sw-highlight-underline-dark) !important;
+}
+
+.highlight-color--orange .underline,
+.rn-editor__rem__body--orange .rn-editor__rem__body__text .underline,
+.highlight-color--yellow .underline,
+.rn-editor__rem__body--yellow .rn-editor__rem__body__text .underline,
+.highlight-color--green .underline,
+.rn-editor__rem__body--green .rn-editor__rem__body__text .underline,
+.highlight-color--blue .underline,
+.rn-editor__rem__body--blue .rn-editor__rem__body__text .underline,
+.highlight-color--purple .underline,
+.rn-editor__rem__body--purple .rn-editor__rem__body__text .underline {
+  text-decoration-color: var(--sw-highlight-underline-dark) !important;
+}
+
+/* ------------------------------
+   6. Tree-node indent borders
+   ------------------------------ */
+body div#hierarchy-editor .TreeNode,
+body div#hierarchy-editor .tree-node--children,
+body div#hierarchy-editor .flattened-children,
+body div#hierarchy-editor .flattened-children-node,
+body div#hierarchy-editor [class*="tree-node--children"],
+body div#hierarchy-editor [class*="flattened-children"] {
+  border-color: transparent !important;
+  border-left-color: transparent !important;
+}
+
+/* ------------------------------
+   7. Clozes, KaTeX, images
+   ------------------------------ */
+.cloze {
+  background-color: var(--cloze-color) !important;
+  color: var(--cloze-text) !important;
+  border-bottom: 1.5px solid var(--border-bottom) !important;
+  padding: 0 0.12em 2px;
+  font-weight: 600;
+  font-style: italic;
+  border-radius: 5px;
+}
+
+.katex,
+.katex-display {
+  color: var(--sw-fg) !important;
+}
+
+/* Keeps image/diagram blocks from getting harsh black boxes in dark mode. */
+.dark .dark\:bg-black {
+  background-color: var(--sw-bg) !important;
+  border-radius: 20px;
+}
+
+/* ------------------------------
+   8. Custom heading styles
+   ------------------------------ */
+.rn-editor__rem__body__text--h1,
+.rn-editor__rem__body__text--h2,
+.rn-editor__rem__body__text--h3 {
+  font-size: inherit !important;
+  font-weight: normal !important;
+  line-height: inherit !important;
+  display: block !important;
+  box-sizing: border-box;
+  padding: 4px 8px !important;
+  margin-top: 0.6em !important;
+  margin-bottom: 0.3em !important;
+  border-radius: 5px;
+}
+
+.rn-editor__rem__body__text--h1 {
+  background: var(--sw-accent) !important;
+  color: var(--sw-on-accent) !important;
+  border: none !important;
+  border-radius: 5px !important;
+  box-shadow: none !important;
+}
+
+.rn-editor__rem__body__text--h2 {
+  background: transparent !important;
+  color: var(--sw-fg) !important;
+  border: none !important;
+  border-top: 2px solid var(--sw-accent) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.rn-editor__rem__body__text--h3 {
+  background: transparent !important;
+  color: var(--sw-fg) !important;
+  border: none !important;
+  border-left: 3px solid var(--sw-accent) !important;
+  border-top: 1px solid #416f7959 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding-left: 10px !important;
+}
+
+/* High-specificity indentation fix.
+   Width is calc() instead of 100% so the 1.5em left margin does not cause horizontal overflow. */
+body div#hierarchy-editor .rn-editor__rem__body__text--h1,
+body div#hierarchy-editor .rn-editor__rem__body__text--h2,
+body div#hierarchy-editor .rn-editor__rem__body__text--h3 {
+  margin-left: 1.5em !important;
+  width: calc(100% - 1.5em) !important;
+  max-width: calc(100% - 1.5em) !important;
+  overflow-wrap: anywhere;
+}
+
+/* H1 has a solid accent fill, so nested inline formatting should stay readable. */
+body div#hierarchy-editor
+  .rn-editor__rem__body__text--h1
+  :is(
+    .rn-rem-reference,
+    .rn-highlight-reference,
+    strong,
+    b,
+    .bold,
+    em,
+    i,
+    .italic,
+    .underline
+  ) {
+  color: var(--sw-on-accent) !important;
+  text-decoration-color: #02040599 !important;
+}
+
+/* ------------------------------
+   9. Scrollbars
+   ------------------------------ */
+* {
+  scrollbar-color: #c1d9de40 transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #c1d9de26;
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: #c1d9de40;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ------------------------------
+   10. Inline code polish
+   ------------------------------ */
+& {
+  --sw-code-bg: #101c1fbf;
+  --sw-code-fg: #ffd0a6;
+  --sw-code-border: #6da7b259;
+  --sw-code-shadow: #da6c6226;
+}
+
+.rn-editor__rem__body__text code,
+.RichTextViewer code,
+.rn-doc-title code,
+.rn-editor__rem__body__text .code,
+.RichTextViewer .code,
+.rn-doc-title .code,
+.rn-editor__rem__body__text .inline-code,
+.RichTextViewer .inline-code,
+.rn-doc-title .inline-code,
+.rn-editor__rem__body__text .rn-code,
+.RichTextViewer .rn-code,
+.rn-doc-title .rn-code,
+.rn-editor__rem__body__text [data-linear-editor-item-type="code"],
+.RichTextViewer [data-linear-editor-item-type="code"],
+.rn-doc-title [data-linear-editor-item-type="code"] {
+  background-color: var(--sw-code-bg) !important;
+  color: var(--sw-code-fg) !important;
+  border: 1px solid var(--sw-code-border) !important;
+  border-radius: 5px !important;
+  padding: 0.05em 0.28em !important;
+  box-shadow: inset 0 -1px 0 var(--sw-code-shadow) !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-size: 0.92em !important;
+}
+
+/* Do not turn flashcard direction symbols, card delimiters, or KaTeX internals into code chips. */
+.rn-card-delimiter,
+.separator-symbol,
+.MultiLineCardIndicator,
+.rn-card-delimiter code,
+.separator-symbol code,
+.MultiLineCardIndicator code,
+.rn-card-delimiter .code,
+.separator-symbol .code,
+.MultiLineCardIndicator .code,
+.rn-card-delimiter [data-linear-editor-item-type="code"],
+.separator-symbol [data-linear-editor-item-type="code"],
+.MultiLineCardIndicator [data-linear-editor-item-type="code"],
+.katex code,
+.katex-display code,
+.katex .code,
+.katex-display .code,
+.katex [data-linear-editor-item-type="code"],
+.katex-display [data-linear-editor-item-type="code"] {
+  background: transparent !important;
+  background-color: transparent !important;
+  color: inherit !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  font-family: inherit !important;
+  font-size: inherit !important;
+}
+
+/* ------------------------------
+   11. Quotes — tight transparent chip, no left rail
+   ------------------------------
+   Goal:
+   - quote styling hugs the text, not the full row
+   - no red left rail
+   - row height stays close to normal line spacing
+   - quote bullet and quote text align with normal rem lines
+   - minimal interference with RemNote's layout
+*/
+
+& {
+  --sw-quote-chip-bg:
+    linear-gradient(
+      90deg,
+      #da6c6212 0%,
+      #1d3237d0 56%,
+      #1d323796 100%
+    );
+
+  --sw-quote-chip-text: #d4e8ec;
+  --sw-quote-chip-border: #6da7b240;
+  --sw-quote-chip-border-focused: #00b3bd80;
+
+  --sw-quote-chip-shadow:
+    inset 0 1px 0 #ffffff08,
+    inset 0 -1px 0 #da6c6214,
+    0 3px 8px #0204051f;
+
+  --sw-quote-chip-shadow-focused:
+    inset 0 1px 0 #ffffff0a,
+    inset 0 -1px 0 #00b3bd1c,
+    0 4px 10px #02040526;
+
+  --sw-quote-chip-shadow-hover:
+    inset 0 1px 0 #ffffff09,
+    inset 0 -1px 0 #da6c6218,
+    0 4px 9px #02040524;
+}
+
+/* Keep the outer virtualized node clean. */
+body div#hierarchy-editor
+  .rn-editor-container.rn-quote[data-rem-container-tags~="quote"] {
+  background: transparent !important;
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+  isolation: isolate;
+}
+
+/* Remove the native quote block look and keep row spacing tight. */
+body div#hierarchy-editor
+  .rn-editor-container.rn-quote[data-rem-container-tags~="quote"]
+  > .tree-node--parent.rn-quote-content {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+
+  border: 0 !important;
+  border-left: 0 !important;
+  border-radius: 0 !important;
+
+  box-shadow: none !important;
+  outline: 0 !important;
+
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  padding-left: 2px !important;
+  padding-right: 0 !important;
+
+  box-sizing: border-box !important;
+  overflow: visible !important;
+}
+
+/* Clean the rem shell itself. */
+body div#hierarchy-editor
+  .rn-editor-container.rn-quote[data-rem-container-tags~="quote"]
+  .rn-editor__rem__body {
+  background: transparent !important;
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Keep the row itself normal; the actual visual chip is applied lower down. */
+body div#hierarchy-editor
+  .rn-editor-container.rn-quote[data-rem-container-tags~="quote"]
+  .rn-editor__rem__body__text.rn-quote-inner {
+  background: transparent !important;
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+
+  color: var(--sw-quote-chip-text) !important;
+  font-style: normal !important;
+  line-height: inherit !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+
+  /* Alignment correction: pulls quote text back toward normal rem text. */
+  margin-left: -2px !important;
+}
+
+/* Inside focused quote chips, use cyan caret to match the quote focus state. */
+body div#hierarchy-editor
+  .rn-editor-container.rn-quote[data-rem-container-tags~="quote"]:focus-within
+  [contenteditable="true"] {
+  caret-color: var(--sw-cyan) !important;
+}
+
+/* Only the text wrapper should shrink to content width. */
+body div#hierarchy-editor
+  .rn-editor-container.rn-quote[data-rem-container-tags~="quote"]
+  .rn-editor__rem__body__text.rn-quote-inner
+  > .rich-text-editor {
+  display: inline-block !important;
+  width: auto !important;
+  max-width: 100% !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+body div#hierarchy-editor
+  .rn-editor-container.rn-quote[data-rem-container-tags~="quote"]
+  .rn-editor__rem__body__text.rn-quote-inner
+  > .rich-text-editor
+  > .EditorContainer {
+  display: inline !important;
+  width: auto !important;
+  max-width: 100% !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+/* The visible quote chip. */
+body div#hierarchy-editor
+  .rn-editor-container.rn-quote[data-rem-container-tags~="quote"]
+  .rn-editor__rem__body__text.rn-quote-inner
+  > .rich-text-editor
+  > .EditorContainer
+  > [data-linear-editor-text] {
+  display: inline-block !important;
+  width: auto !important;
+  max-width: 100% !important;
+
+  background: var(--sw-quote-chip-bg) !important;
+  color: var(--sw-quote-chip-text) !important;
+
+  border: 1px solid var(--sw-quote-chip-border) !important;
+  border-radius: 6px !important;
+  box-shadow: var(--sw-quote-chip-shadow) !important;
+
+  /* Final tight padding chosen from visual alignment testing. */
+  padding: 0.11em 0.26em 0.14em 0.2em !important;
+
+  line-height: inherit !important;
+  white-space: pre-wrap !important;
+  overflow-wrap: anywhere !important;
+  vertical-align: baseline !important;
+  box-sizing: border-box !important;
+}
+
+/* Subtle hover only; no rail, no loud glow. */
+body div#hierarchy-editor
+  .rn-editor-container.rn-quote[data-rem-container-tags~="quote"]:not(:focus-within):hover
+  .rn-editor__rem__body__text.rn-quote-inner
+  > .rich-text-editor
+  > .EditorContainer
+  > [data-linear-editor-text] {
+  border-color: #6da7b259 !important;
+  box-shadow: var(--sw-quote-chip-shadow-hover) !important;
+}
+
+/* Focus state stays subtle. */
+body div#hierarchy-editor
+  .rn-editor-container.rn-quote[data-rem-container-tags~="quote"]:focus-within
+  .rn-editor__rem__body__text.rn-quote-inner
+  > .rich-text-editor
+  > .EditorContainer
+  > [data-linear-editor-text] {
+  border-color: var(--sw-quote-chip-border-focused) !important;
+  box-shadow: var(--sw-quote-chip-shadow-focused) !important;
+}
+
+/* Keep inner leaves transparent. */
+body div#hierarchy-editor
+  .rn-editor-container.rn-quote[data-rem-container-tags~="quote"]
+  .rn-editor__rem__body__text.rn-quote-inner
+  [data-linear-editor-leaf-container],
+body div#hierarchy-editor
+  .rn-editor-container.rn-quote[data-rem-container-tags~="quote"]
+  .rn-editor__rem__body__text.rn-quote-inner
+  [data-linear-editor-leaf-wrapper],
+body div#hierarchy-editor
+  .rn-editor-container.rn-quote[data-rem-container-tags~="quote"]
+  .rn-editor__rem__body__text.rn-quote-inner
+  [data-linear-editor-editable-leaf],
+body div#hierarchy-editor
+  .rn-editor-container.rn-quote[data-rem-container-tags~="quote"]
+  .rn-editor__rem__body__text.rn-quote-inner
+  .linear-editor-item {
+  background: transparent !important;
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+  color: inherit !important;
+}
+
+/* Formatting inside quotes. */
+body div#hierarchy-editor
+  .rn-editor-container.rn-quote[data-rem-container-tags~="quote"]
+  .rn-editor__rem__body__text.rn-quote-inner
+  :is(strong, b, .bold) {
+  color: var(--sw-bold-text) !important;
+}
+
+body div#hierarchy-editor
+  .rn-editor-container.rn-quote[data-rem-container-tags~="quote"]
+  .rn-editor__rem__body__text.rn-quote-inner
+  :is(em, i, .italic) {
+  color: var(--sw-blue-text) !important;
+}
+
+body div#hierarchy-editor
+  .rn-editor-container.rn-quote[data-rem-container-tags~="quote"]
+  .rn-editor__rem__body__text.rn-quote-inner
+  :is(.rn-rem-reference, .rn-highlight-reference) {
+  color: var(--sw-cyan) !important;
+  text-decoration-color: #00b3bd99 !important;
+}
+
+/* Restore inline code inside quotes. */
+body div#hierarchy-editor
+  .rn-editor-container.rn-quote[data-rem-container-tags~="quote"]
+  .rn-editor__rem__body__text.rn-quote-inner
+  :is(
+    code,
+    .code,
+    .inline-code,
+    .rn-code,
+    [data-linear-editor-item-type="code"]
+  ) {
+  background-color: var(--sw-code-bg) !important;
+  color: var(--sw-code-fg) !important;
+  border: 1px solid var(--sw-code-border) !important;
+  border-radius: 5px !important;
+  padding: 0.05em 0.28em !important;
+  box-shadow: inset 0 -1px 0 var(--sw-code-shadow) !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-size: 0.92em !important;
+}
+
+/* Restore inline highlights inside quotes. */
+body div#hierarchy-editor
+  .rn-editor-container.rn-quote[data-rem-container-tags~="quote"]
+  .rn-editor__rem__body__text.rn-quote-inner
+  .highlight-color--red {
+  background-color: var(--sw-red) !important;
+  color: var(--sw-highlight-ink-red) !important;
+  border-radius: 999px !important;
+  border-left: 6px solid transparent !important;
+  border-right: 6px solid transparent !important;
+}
+
+body div#hierarchy-editor
+  .rn-editor-container.rn-quote[data-rem-container-tags~="quote"]
+  .rn-editor__rem__body__text.rn-quote-inner
+  .highlight-color--orange {
+  background-color: var(--sw-orange) !important;
+  color: var(--sw-highlight-ink) !important;
+  border-radius: 999px !important;
+  border-left: 6px solid transparent !important;
+  border-right: 6px solid transparent !important;
+}
+
+body div#hierarchy-editor
+  .rn-editor-container.rn-quote[data-rem-container-tags~="quote"]
+  .rn-editor__rem__body__text.rn-quote-inner
+  .highlight-color--yellow {
+  background-color: var(--sw-yellow) !important;
+  color: var(--sw-highlight-ink) !important;
+  border-radius: 999px !important;
+  border-left: 6px solid transparent !important;
+  border-right: 6px solid transparent !important;
+}
+
+body div#hierarchy-editor
+  .rn-editor-container.rn-quote[data-rem-container-tags~="quote"]
+  .rn-editor__rem__body__text.rn-quote-inner
+  .highlight-color--green {
+  background-color: var(--sw-green) !important;
+  color: var(--sw-highlight-ink) !important;
+  border-radius: 999px !important;
+  border-left: 6px solid transparent !important;
+  border-right: 6px solid transparent !important;
+}
+
+body div#hierarchy-editor
+  .rn-editor-container.rn-quote[data-rem-container-tags~="quote"]
+  .rn-editor__rem__body__text.rn-quote-inner
+  .highlight-color--blue {
+  background-color: var(--sw-cyan) !important;
+  color: var(--sw-highlight-ink) !important;
+  border-radius: 999px !important;
+  border-left: 6px solid transparent !important;
+  border-right: 6px solid transparent !important;
+}
+
+body div#hierarchy-editor
+  .rn-editor-container.rn-quote[data-rem-container-tags~="quote"]
+  .rn-editor__rem__body__text.rn-quote-inner
+  .highlight-color--purple {
+  background-color: var(--sw-purple) !important;
+  color: var(--sw-highlight-ink) !important;
+  border-radius: 999px !important;
+  border-left: 6px solid transparent !important;
+  border-right: 6px solid transparent !important;
+}
+
+/* Keep overlay from muddying the chip. */
+body div#hierarchy-editor
+  .rn-editor-container.rn-quote[data-rem-container-tags~="quote"]
+  .rem-inner-overlay {
+  background: transparent !important;
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+  mix-blend-mode: normal !important;
+  opacity: 0 !important;
+}
+
+/* Slightly softer control visibility inside quotes, with final bullet alignment correction. */
+body div#hierarchy-editor
+  .rn-editor-container.rn-quote[data-rem-container-tags~="quote"]
+  .rn-quote-content
+  .rem-button__container {
+  opacity: 0.55 !important;
+  transition: opacity 120ms ease-in-out !important;
+
+  /* Alignment correction: brings quote bullet/handle group back into line. */
+  transform: translateX(3.5px) !important;
+}
+
+body div#hierarchy-editor
+  .rn-editor-container.rn-quote[data-rem-container-tags~="quote"]
+  .rn-quote-content:hover
+  .rem-button__container,
+body div#hierarchy-editor
+  .rn-editor-container.rn-quote[data-rem-container-tags~="quote"]
+  .rn-quote-content:focus-within
+  .rem-button__container {
+  opacity: 1 !important;
+}
+}
